@@ -91,7 +91,7 @@
     <kafka.version>2.0.0</kafka.version>
     <confluent.version>5.3.4</confluent.version>
     <glassfish.version>2.17</glassfish.version>
-    <parquet.version>1.10.1</parquet.version>
+    <parquet.version>1.12.0</parquet.version>
     <junit.jupiter.version>5.7.0-M1</junit.jupiter.version>
     <junit.vintage.version>5.7.0-M1</junit.vintage.version>
     <junit.platform.version>1.7.0-M1</junit.platform.version>
@@ -104,11 +104,11 @@
     <hive.version>2.3.1</hive.version>
     <hive.exec.classifier>core</hive.exec.classifier>
     <metrics.version>4.1.1</metrics.version>
-    <orc.version>1.6.0</orc.version>
+    <orc.version>1.6.10</orc.version>
     <airlift.version>0.16</airlift.version>
     <prometheus.version>0.8.0</prometheus.version>
     <http.version>4.4.1</http.version>
-    <spark.version>${spark2.version}</spark.version>
+    <spark.version>${spark3.version}</spark.version>
     <sparkbundle.version>${spark2bundle.version}</sparkbundle.version>
     <flink.version>1.12.2</flink.version>
     <spark2.version>2.4.4</spark2.version>
@@ -116,11 +116,11 @@
     <spark2bundle.version></spark2bundle.version>
     <spark3bundle.version>3</spark3bundle.version>
     <hudi.spark.module>hudi-spark2</hudi.spark.module>
-    <avro.version>1.8.2</avro.version>
+    <avro.version>1.10.2</avro.version>
     <scala11.version>2.11.12</scala11.version>
     <scala12.version>2.12.10</scala12.version>
-    <scala.version>${scala11.version}</scala.version>
-    <scala.binary.version>2.11</scala.binary.version>
+    <scala.version>${scala12.version}</scala.version>
+    <scala.binary.version>2.12</scala.binary.version>
     <apache-rat-plugin.version>0.12</apache-rat-plugin.version>
     <scala-maven-plugin.version>3.3.1</scala-maven-plugin.version>
     <scalatest.version>3.1.0</scalatest.version>
@@ -128,7 +128,7 @@
     <thrift.version>0.12.0</thrift.version>
     <jetty.version>9.4.15.v20190215</jetty.version>
     <htrace.version>3.1.0-incubating</htrace.version>
-    <hbase.version>1.2.3</hbase.version>
+    <hbase.version>1.2.0-cdh5.15.2</hbase.version>
     <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
     <h2.version>1.4.199</h2.version>
     <awaitility.version>3.1.2</awaitility.version>
@@ -152,7 +152,7 @@
     <presto.bundle.bootstrap.shade.prefix>org.apache.hudi.</presto.bundle.bootstrap.shade.prefix>
     <shadeSources>true</shadeSources>
     <zk-curator.version>2.7.1</zk-curator.version>
-    <antlr.version>4.7</antlr.version>
+    <antlr.version>4.8</antlr.version>
     <aws.sdk.version>1.12.22</aws.sdk.version>
   </properties>
 

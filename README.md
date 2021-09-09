@@ -83,7 +83,7 @@ mvn clean package -DskipTests -Dscala-2.12
 The default Spark version supported is 2.4.4. To build for Spark 3.0.0 version, build using `spark3` profile
 
 ```
-mvn clean package -DskipTests -Dspark3
+mvn clean package -DskipTests -Pspark3,scala-2.12 -Drat.skip=true -Dspark3.version=3.0.3
 ```
 
 ### Build without spark-avro module
