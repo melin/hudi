@@ -97,7 +97,7 @@
     <junit.platform.version>1.7.0-M1</junit.platform.version>
     <mockito.jupiter.version>3.3.3</mockito.jupiter.version>
     <log4j.version>1.2.17</log4j.version>
-    <slf4j.version>1.7.15</slf4j.version>
+    <slf4j.version>1.7.32</slf4j.version>
     <joda.version>2.9.9</joda.version>
     <hadoop.version>2.7.3</hadoop.version>
     <hive.groupid>org.apache.hive</hive.groupid>
@@ -111,8 +111,8 @@
     <spark.version>${spark2.version}</spark.version>
     <sparkbundle.version>${spark2bundle.version}</sparkbundle.version>
     <flink.version>1.12.2</flink.version>
-    <spark2.version>2.4.4</spark2.version>
-    <spark3.version>3.0.0</spark3.version>
+    <spark2.version>2.4.8</spark2.version>
+    <spark3.version>3.0.3</spark3.version>
     <spark2bundle.version></spark2bundle.version>
     <spark3bundle.version>3</spark3bundle.version>
     <hudi.spark.module>hudi-spark2</hudi.spark.module>
@@ -152,7 +152,7 @@
     <presto.bundle.bootstrap.shade.prefix>org.apache.hudi.</presto.bundle.bootstrap.shade.prefix>
     <shadeSources>true</shadeSources>
     <zk-curator.version>2.7.1</zk-curator.version>
-    <antlr.version>4.7</antlr.version>
+    <antlr.version>4.8</antlr.version>
     <aws.sdk.version>1.12.22</aws.sdk.version>
   </properties>
 
