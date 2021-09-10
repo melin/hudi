@@ -31,11 +31,11 @@ import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, Literal, Na
 import org.apache.spark.sql.catalyst.plans.Inner
 import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CompactionPath, CompactionShowOnPath, CompactionShowOnTable, CompactionTable, DeleteAction, DeleteFromTable, InsertAction, LogicalPlan, MergeIntoTable, Project, UpdateAction, UpdateTable}
 import org.apache.spark.sql.catalyst.rules.Rule
-import org.apache.spark.sql.execution.command.{AlterTableAddColumnsCommand, AlterTableChangeColumnCommand, AlterTableRenameCommand, CreateDataSourceTableCommand, TruncateTableCommand}
+import org.apache.spark.sql.execution.command.{AlterTableAddColumnsCommand, AlterTableChangeColumnCommand, AlterTableDropPartitionCommand, AlterTableRenameCommand, CreateDataSourceTableCommand, ShowPartitionsCommand, TruncateTableCommand}
 import org.apache.spark.sql.execution.datasources.{CreateTable, LogicalRelation}
 import org.apache.spark.sql.hudi.{HoodieOptionConfig, HoodieSqlUtils}
 import org.apache.spark.sql.hudi.HoodieSqlUtils._
-import org.apache.spark.sql.hudi.command.{AlterHoodieTableAddColumnsCommand, AlterHoodieTableChangeColumnCommand, AlterHoodieTableRenameCommand, CompactionHoodiePathCommand, CompactionHoodieTableCommand, CompactionShowHoodiePathCommand, CompactionShowHoodieTableCommand, CreateHoodieTableAsSelectCommand, CreateHoodieTableCommand, DeleteHoodieTableCommand, InsertIntoHoodieTableCommand, MergeIntoHoodieTableCommand, TruncateHoodieTableCommand, UpdateHoodieTableCommand}
+import org.apache.spark.sql.hudi.command.{AlterHoodieTableAddColumnsCommand, AlterHoodieTableChangeColumnCommand, AlterHoodieTableDropPartitionCommand, AlterHoodieTableRenameCommand, CompactionHoodiePathCommand, CompactionHoodieTableCommand, CompactionShowHoodiePathCommand, CompactionShowHoodieTableCommand, CreateHoodieTableAsSelectCommand, CreateHoodieTableCommand, DeleteHoodieTableCommand, InsertIntoHoodieTableCommand, MergeIntoHoodieTableCommand, ShowPartitionsHoodieCommand, TruncateHoodieTableCommand, UpdateHoodieTableCommand}
 import org.apache.spark.sql.types.StringType
 
 object HoodieAnalysis {
@@ -419,6 +419,14 @@ case class HoodiePostAnalysisRule(sparkSession: SparkSession) extends Rule[Logic
       case TruncateTableCommand(tableName, partitionSpec)
         if isHoodieTable(tableName, sparkSession) =>
         new TruncateHoodieTableCommand(tableName, partitionSpec)
+      // Rewrite AlterTableDropPartitionCommand to AlterHoodieTableDropPartitionCommand
+      case AlterTableDropPartitionCommand(tableName, partitionSpec, ifExists, purge, retainData)
+        if isHoodieTable(tableName, sparkSession) =>
+        AlterHoodieTableDropPartitionCommand(tableName, partitionSpec, ifExists, purge, retainData)
+      // Rewrite ShowPartitionsCommand to ShowPartitionsHoodieCommand
+      case ShowPartitionsCommand(tableName, partitionSpec)
+        if isHoodieTable(tableName, sparkSession) =>
+        ShowPartitionsHoodieCommand(tableName, partitionSpec)
       case _ => plan
     }
   }
