@@ -17,15 +17,17 @@
 
 package org.apache.spark.sql.hudi.command
 
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.mapred.{FileInputFormat, JobConf}
 import org.apache.hudi.common.util.PartitionPathEncodeUtils
-
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.hudi.hadoop.HoodieParquetInputFormat
+import org.apache.spark.sql.{AnalysisException, Row, SparkSession}
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.catalyst.catalog.CatalogTypes.TablePartitionSpec
 import org.apache.spark.sql.catalyst.catalog.HoodieCatalogTable
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference}
-import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.execution.datasources.PartitioningUtils
+import org.apache.spark.sql.hudi.HoodieSqlUtils.getTableLocation
 import org.apache.spark.sql.types.StringType
 
 /**
@@ -42,13 +44,26 @@ extends HoodieLeafRunnableCommand {
 
   override def run(sparkSession: SparkSession): Seq[Row] = {
     val hoodieCatalogTable = HoodieCatalogTable(sparkSession, tableIdentifier)
+    val catalog = sparkSession.sessionState.catalog
+    val table = catalog.getTableMetadata(tableIdentifier)
+    val basePath = getTableLocation(table, sparkSession)
+    val hadoopConf = sparkSession.sessionState.newHadoopConf()
 
     val schemaOpt = hoodieCatalogTable.tableSchema
     val partitionColumnNamesOpt = hoodieCatalogTable.tableConfig.getPartitionFields
 
     if (partitionColumnNamesOpt.isPresent && partitionColumnNamesOpt.get.nonEmpty && schemaOpt.nonEmpty) {
       if (specOpt.isEmpty) {
-        hoodieCatalogTable.getAllPartitionPaths.map(Row(_))
+        val badColumns = specOpt.get.keySet.filterNot(table.partitionColumnNames.contains)
+        if (badColumns.nonEmpty) {
+          val badCols = badColumns.mkString("[", ", ", "]")
+          throw new AnalysisException(
+            s"Non-partitioning column(s) $badCols are specified for SHOW PARTITIONS")
+        }
+
+        val partSpec = specOpt.get.map { case (key, value) => s"${key}=${value}" }.mkString("/")
+        val partitionPath = basePath + "/" + partSpec
+        listFiles(hadoopConf, partitionPath)
       } else {
         val spec = specOpt.get
         hoodieCatalogTable.getAllPartitionPaths.filter { partitionPath =>
@@ -59,7 +74,18 @@ extends HoodieLeafRunnableCommand {
         }.map(Row(_))
       }
     } else {
-      Seq.empty[Row]
+      listFiles(hadoopConf, basePath)
     }
+  }
+
+  private def listFiles(hadoopConf: Configuration, basePath: String): Seq[Row] = {
+    val hoodieInputFormat: HoodieParquetInputFormat = new HoodieParquetInputFormat
+    val jobConf: JobConf = new JobConf(hadoopConf)
+    jobConf.set("hoodie.metadata.enable", "true")
+    hoodieInputFormat.setConf(jobConf)
+
+    logInfo("list path: " + basePath)
+    FileInputFormat.setInputPaths(jobConf, basePath)
+    hoodieInputFormat.listStatus(jobConf).map(file => file.getPath.toString).map(Row(_))
   }
 }
