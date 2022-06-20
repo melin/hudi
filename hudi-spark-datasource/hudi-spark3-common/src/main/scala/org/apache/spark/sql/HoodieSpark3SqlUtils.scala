@@ -33,7 +33,7 @@ object HoodieSpark3SqlUtils {
         identityCols += col
 
 
-      case BucketTransform(numBuckets, FieldReference(Seq(col))) =>
+      case BucketTransform(numBuckets, Seq(FieldReference(Seq(col))), _) =>
         bucketSpec = Some(BucketSpec(numBuckets, col :: Nil, Nil))
 
       case _ =>

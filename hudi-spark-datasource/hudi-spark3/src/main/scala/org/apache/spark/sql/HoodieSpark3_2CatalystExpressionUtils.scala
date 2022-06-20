@@ -48,7 +48,7 @@ object HoodieSpark3_2CatalystExpressionUtils extends HoodieCatalystExpressionUti
         // String Expressions
         case Lower(OrderPreservingTransformation(attrRef)) => Some(attrRef)
         case Upper(OrderPreservingTransformation(attrRef)) => Some(attrRef)
-        case org.apache.spark.sql.catalyst.expressions.Left(OrderPreservingTransformation(attrRef), _, _) => Some(attrRef)
+        case org.apache.spark.sql.catalyst.expressions.Left(OrderPreservingTransformation(attrRef), _) => Some(attrRef)
 
         // Math Expressions
         // Binary

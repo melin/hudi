@@ -162,7 +162,7 @@ class Spark32HoodieParquetFileFormat(private val shouldAppendPartitionValues: Bo
       // Try to push down filters when filter push-down is enabled.
       val pushed = if (enableParquetFilterPushDown) {
         val parquetSchema = footerFileMetaData.getSchema
-        val parquetFilters = if (HoodieSparkUtils.gteqSpark3_2_1) {
+        val parquetFilters = if (HoodieSparkUtils.gteqSpark3_3_0) {
           // NOTE: Below code could only be compiled against >= Spark 3.2.1,
           //       and unfortunately won't compile against Spark 3.2.0
           //       However this code is runtime-compatible w/ both Spark 3.2.0 and >= Spark 3.2.1
@@ -256,7 +256,7 @@ class Spark32HoodieParquetFileFormat(private val shouldAppendPartitionValues: Bo
               enableOffHeapColumnVector && taskContext.isDefined,
               capacity,
               typeChangeInfos)
-          } else if (HoodieSparkUtils.gteqSpark3_2_1) {
+          } else if (HoodieSparkUtils.gteqSpark3_3_0) {
             // NOTE: Below code could only be compiled against >= Spark 3.2.1,
             //       and unfortunately won't compile against Spark 3.2.0
             //       However this code is runtime-compatible w/ both Spark 3.2.0 and >= Spark 3.2.1
@@ -321,7 +321,7 @@ class Spark32HoodieParquetFileFormat(private val shouldAppendPartitionValues: Bo
         }
       } else {
         logDebug(s"Falling back to parquet-mr")
-        val readSupport = if (HoodieSparkUtils.gteqSpark3_2_1) {
+        val readSupport = if (HoodieSparkUtils.gteqSpark3_3_0) {
           // ParquetRecordReader returns InternalRow
           // NOTE: Below code could only be compiled against >= Spark 3.2.1,
           //       and unfortunately won't compile against Spark 3.2.0

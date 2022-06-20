@@ -53,7 +53,7 @@ object HoodieAnalysis {
     ) ++ extraPostHocResolutionRules()
 
   def extraResolutionRules(): Seq[SparkSession => Rule[LogicalPlan]] = {
-    if (HoodieSparkUtils.gteqSpark3_2) {
+    if (HoodieSparkUtils.gteqSpark3_3) {
       val spark3AnalysisClass = "org.apache.spark.sql.hudi.analysis.HoodieSpark3Analysis"
       val spark3Analysis: SparkSession => Rule[LogicalPlan] =
         session => ReflectionUtils.loadClass(spark3AnalysisClass, session).asInstanceOf[Rule[LogicalPlan]]
@@ -69,7 +69,7 @@ object HoodieAnalysis {
   }
 
   def extraPostHocResolutionRules(): Seq[SparkSession => Rule[LogicalPlan]] =
-    if (HoodieSparkUtils.gteqSpark3_2) {
+    if (HoodieSparkUtils.gteqSpark3_3) {
       val spark3PostHocResolutionClass = "org.apache.spark.sql.hudi.analysis.HoodieSpark3PostAnalysisRule"
       val spark3PostHocResolution: SparkSession => Rule[LogicalPlan] =
         session => ReflectionUtils.loadClass(spark3PostHocResolutionClass, session).asInstanceOf[Rule[LogicalPlan]]
@@ -368,7 +368,7 @@ case class HoodieResolveReferences(sparkSession: SparkSession) extends Rule[Logi
     case DeleteFromTable(table, condition)
       if sparkAdapter.isHoodieTable(table, sparkSession) && table.resolved =>
       // Resolve condition
-      val resolvedCondition = condition.map(resolveExpressionFrom(table)(_))
+      val resolvedCondition = resolveExpressionFrom(table)(condition)
       // Return the resolved DeleteTable
       DeleteFromTable(table, resolvedCondition)
 

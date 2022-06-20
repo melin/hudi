@@ -22,7 +22,7 @@ import org.apache.hudi.common.table.HoodieTableMetaClient
 
 class TestTimeTravelTable extends TestHoodieSqlBase {
   test("Test Insert and Update Record with time travel") {
-    if (HoodieSparkUtils.gteqSpark3_2) {
+    if (HoodieSparkUtils.gteqSpark3_3) {
       withTempDir { tmp =>
         val tableName1 = generateTableName
         spark.sql(
@@ -67,7 +67,7 @@ class TestTimeTravelTable extends TestHoodieSqlBase {
   }
 
   test("Test Insert Into Records with time travel To new Table") {
-    if (HoodieSparkUtils.gteqSpark3_2) {
+    if (HoodieSparkUtils.gteqSpark3_3) {
       withTempDir { tmp =>
         // Create Non-Partitioned table
         val tableName1 = generateTableName
@@ -142,7 +142,7 @@ class TestTimeTravelTable extends TestHoodieSqlBase {
   }
 
   test("Test Two Table's Union Join with time travel") {
-    if (HoodieSparkUtils.gteqSpark3_2) {
+    if (HoodieSparkUtils.gteqSpark3_3) {
       withTempDir { tmp =>
         Seq("cow", "mor").foreach { tableType =>
           val tableName = generateTableName

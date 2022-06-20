@@ -52,7 +52,7 @@ public class ReflectUtil {
   public static DateFormatter getDateFormatter(ZoneId zoneId) {
     try {
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
-      if (HoodieSparkUtils.isSpark3_2()) {
+      if (HoodieSparkUtils.isSpark3_3()) {
         Class clazz = loader.loadClass(DateFormatter.class.getName());
         Method applyMethod = clazz.getDeclaredMethod("apply");
         applyMethod.setAccessible(true);

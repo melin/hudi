@@ -38,7 +38,7 @@ class ResolveHudiAlterTableCommandSpark32(sparkSession: SparkSession) extends Ru
       HudiAlterTableCommand(table, set.changes, ColumnChangeID.PROPERTY_CHANGE)
     case unSet @ UnsetTableProperties(asTable(table), _, _) if schemaEvolutionEnabled && unSet.resolved =>
       HudiAlterTableCommand(table, unSet.changes, ColumnChangeID.PROPERTY_CHANGE)
-    case drop @ DropColumns(asTable(table), _) if schemaEvolutionEnabled && drop.resolved =>
+    case drop @ DropColumns(asTable(table), _, _) if schemaEvolutionEnabled && drop.resolved =>
       HudiAlterTableCommand(table, drop.changes, ColumnChangeID.DELETE)
     case add @ AddColumns(asTable(table), _) if schemaEvolutionEnabled  && add.resolved =>
       HudiAlterTableCommand(table, add.changes, ColumnChangeID.ADD)

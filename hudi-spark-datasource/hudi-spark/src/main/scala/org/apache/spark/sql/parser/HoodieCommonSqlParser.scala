@@ -45,6 +45,13 @@ class HoodieCommonSqlParser(session: SparkSession, delegate: ParserInterface)
     }
   }
 
+  override def parseQuery(sqlText: String): LogicalPlan = parse(sqlText) { parser =>
+    builder.visit(parser.singleStatement()) match {
+      case plan: LogicalPlan => plan
+      case _=> sparkExtendedParser.parseQuery(sqlText)
+    }
+  }
+
   override def parseExpression(sqlText: String): Expression = delegate.parseExpression(sqlText)
 
   override def parseTableIdentifier(sqlText: String): TableIdentifier =
