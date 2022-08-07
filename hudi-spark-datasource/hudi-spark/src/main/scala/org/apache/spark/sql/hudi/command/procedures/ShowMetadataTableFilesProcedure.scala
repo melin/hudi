@@ -18,14 +18,11 @@
 package org.apache.spark.sql.hudi.command.procedures
 
 import org.apache.hadoop.fs.{FileStatus, Path}
-import org.apache.hudi.common.config.HoodieMetadataConfig
-import org.apache.hudi.common.engine.HoodieLocalEngineContext
-import org.apache.hudi.common.table.HoodieTableMetaClient
+import org.apache.hadoop.mapred.{FileInputFormat, JobConf}
 import org.apache.hudi.common.util.{HoodieTimer, StringUtils}
-import org.apache.hudi.exception.HoodieException
-import org.apache.hudi.metadata.HoodieBackedTableMetadata
+import org.apache.hudi.hadoop.HoodieParquetInputFormat
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{DataTypes, Metadata, StructField, StructType}
 
 import java.util
@@ -38,7 +35,8 @@ class ShowMetadataTableFilesProcedure() extends BaseProcedure with ProcedureBuil
   )
 
   private val OUTPUT_TYPE = new StructType(Array[StructField](
-    StructField("file_path", DataTypes.StringType, nullable = true, Metadata.empty)
+    StructField("file_path", DataTypes.StringType, nullable = true, Metadata.empty),
+    StructField("file_size", DataTypes.StringType, nullable = true, Metadata.empty)
   ))
 
   def parameters: Array[ProcedureParameter] = PARAMETERS
@@ -52,26 +50,24 @@ class ShowMetadataTableFilesProcedure() extends BaseProcedure with ProcedureBuil
     val partition = getArgValueOrDefault(args, PARAMETERS(1)).get.asInstanceOf[String]
 
     val basePath = getBasePath(table)
-    val metaClient = HoodieTableMetaClient.builder.setConf(jsc.hadoopConfiguration()).setBasePath(basePath).build
-    val config = HoodieMetadataConfig.newBuilder.enable(true).build
-    val metaReader = new HoodieBackedTableMetadata(new HoodieLocalEngineContext(metaClient.getHadoopConf),
-      config, basePath, "/tmp")
-    if (!metaReader.enabled){
-      throw new HoodieException(s"Metadata Table not enabled/initialized.")
-    }
-
     var partitionPath = new Path(basePath)
     if (!StringUtils.isNullOrEmpty(partition)) {
       partitionPath = new Path(basePath, partition)
     }
 
-    val timer = new HoodieTimer().startTimer
-    val statuses = metaReader.getAllFilesInPartition(partitionPath)
-    logDebug("Took " + timer.endTimer + " ms")
+    val hadoopConf = SparkSession.active.sparkContext.hadoopConfiguration
+    val hoodieInputFormat: HoodieParquetInputFormat = new HoodieParquetInputFormat
+    val jobConf: JobConf = new JobConf(hadoopConf)
+    jobConf.set("hoodie.metadata.enable", "true")
+    hoodieInputFormat.setConf(jobConf)
+
+    logInfo("list path: " + basePath)
+    FileInputFormat.setInputPaths(jobConf, partitionPath)
+    val statuses = hoodieInputFormat.listStatus(jobConf)
 
     val rows = new util.ArrayList[Row]
     statuses.toStream.sortBy(p => p.getPath.getName).foreach((f: FileStatus) => {
-        rows.add(Row(f.getPath.getName))
+        rows.add(Row(f.getPath.getName, f.getLen))
     })
     rows.stream().toArray().map(r => r.asInstanceOf[Row]).toList
   }
