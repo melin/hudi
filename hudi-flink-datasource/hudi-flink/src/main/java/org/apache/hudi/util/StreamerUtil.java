@@ -228,12 +228,7 @@ public class StreamerUtil {
                 .withClientNumRetries(30)
                 .withFileSystemLockPath(StreamerUtil.getAuxiliaryPath(conf))
                 .build())
-            .withPayloadConfig(HoodiePayloadConfig.newBuilder()
-                .withPayloadClass(conf.getString(FlinkOptions.PAYLOAD_CLASS_NAME))
-                .withPayloadOrderingField(conf.getString(FlinkOptions.PRECOMBINE_FIELD))
-                .withPayloadEventTimeField(conf.getString(FlinkOptions.PRECOMBINE_FIELD))
-                .withPayloadClass(conf.getString(FlinkOptions.PAYLOAD_CLASS_NAME))
-                .build())
+            .withPayloadConfig(getPayloadConfig(conf))
             .withEmbeddedTimelineServerEnabled(enableEmbeddedTimelineService)
             .withEmbeddedTimelineServerReuseEnabled(true) // make write client embedded timeline service singleton
             .withAutoCommit(false)
@@ -249,6 +244,18 @@ public class StreamerUtil {
       writeConfig.setViewStorageConfig(viewStorageConfig);
     }
     return writeConfig;
+  }
+
+  /**
+   * Returns the payload config with given configuration.
+   */
+  public static HoodiePayloadConfig getPayloadConfig(Configuration conf) {
+    return HoodiePayloadConfig.newBuilder()
+        .withPayloadClass(conf.getString(FlinkOptions.PAYLOAD_CLASS_NAME))
+        .withPayloadOrderingField(conf.getString(FlinkOptions.PRECOMBINE_FIELD))
+        .withPayloadEventTimeField(conf.getString(FlinkOptions.PRECOMBINE_FIELD))
+        .withPayloadClass(conf.getString(FlinkOptions.PAYLOAD_CLASS_NAME))
+        .build();
   }
 
   /**
@@ -423,6 +430,11 @@ public class StreamerUtil {
         .withRemoteServerHost(viewStorageConfig.getRemoteViewServerHost())
         .withRemoteServerPort(viewStorageConfig.getRemoteViewServerPort())
         .withRemoteTimelineClientTimeoutSecs(viewStorageConfig.getRemoteTimelineClientTimeoutSecs())
+        .withRemoteTimelineClientRetry(viewStorageConfig.isRemoteTimelineClientRetryEnabled())
+        .withRemoteTimelineClientMaxRetryNumbers(viewStorageConfig.getRemoteTimelineClientMaxRetryNumbers())
+        .withRemoteTimelineInitialRetryIntervalMs(viewStorageConfig.getRemoteTimelineInitialRetryIntervalMs())
+        .withRemoteTimelineClientMaxRetryIntervalMs(viewStorageConfig.getRemoteTimelineClientMaxRetryIntervalMs())
+        .withRemoteTimelineClientRetryExceptions(viewStorageConfig.getRemoteTimelineClientRetryExceptions())
         .build();
     ViewStorageProperties.createProperties(conf.getString(FlinkOptions.PATH), rebuilt, conf);
     return writeClient;
